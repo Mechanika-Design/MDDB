@@ -295,9 +295,9 @@ class MDDB {
 		}
 
 		if ($cmd === false) {
-			$master = true;
-			$sqls   = array((string) $queryinfo);
-			$opts   = array($params);
+			$master     = true;
+			$sqls       = array((string) $queryinfo);
+			$opts       = array($params);
 			$filteropts = false;
 		} else {
 			$master     = false;
@@ -660,26 +660,33 @@ class MDDB {
 			$sql     .= "(" . implode(", ", $vals) . ")";
 
 			// Handle bulk inserts.
-			$bulkinsert = (isset($supported["BULKINSERT"]) && $supported["BULKINSERT"]);
-			if (!$bulkinsert) {
-				$sql = array($sql);
-			}
-			for ($x = 3; isset($queryinfo[$x]) && isset($queryinfo[$x + 1]); $x += 2) {
-				$vals = array();
-				foreach ($queryinfo[$x] as $key => $val) {
-					$vals[] = "?";
-					$args[] = $val;
-				}
+			if (isset($queryinfo[3]) && isset($queryinfo[4])) {
+				$bulkinsert      = (isset($supported["BULKINSERT"]) && $supported["BULKINSERT"]);
+				$bulkinsertlimit = (isset($supported["BULKINSERTLIMIT"]) ? $supported["BULKINSERTLIMIT"] : false);
+				$sql             = array($sql);
+				$args            = array($args);
+				$lastpos         = 0;
+				for ($x = 3; isset($queryinfo[$x]) && isset($queryinfo[$x + 1]); $x += 2) {
+					if (!$bulkinsert || ($bulkinsertlimit !== false && count($args[$lastpos]) + count($queryinfo[$x]) + count($queryinfo[$x + 1]) >= $bulkinsertlimit)) {
+						$sql[]  = $origsql;
+						$args[] = array();
+						$lastpos ++;
+					} else {
+						$sql[$lastpos] .= ", ";
+					}
 
-				// Avoid this if possible.
-				foreach ($queryinfo[$x + 1] as $key => $val) {
-					$vals[] = $val;
-				}
+					$vals = array();
+					foreach ($queryinfo[$x] as $key => $val) {
+						$vals[]           = "?";
+						$args[$lastpos][] = $val;
+					}
 
-				if ($bulkinsert) {
-					$sql .= ", (" . implode(", ", $vals) . ")";
-				} else {
-					$sql[] = $origsql . "(" . implode(", ", $vals) . ")";
+					// Avoid this if possible.
+					foreach ($queryinfo[$x + 1] as $key => $val) {
+						$vals[] = $val;
+					}
+
+					$sql[$lastpos] .= "(" . implode(", ", $vals) . ")";
 				}
 			}
 

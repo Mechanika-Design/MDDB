@@ -67,7 +67,8 @@ class MDDB_sqlite extends MDDB {
 						"IGNORE"        => "bool"
 					),
 					"SELECT"     => true,
-					"BULKINSERT" => true
+					"BULKINSERT" => true,
+					"BULKINSERTLIMIT" => 900,
 				);
 
 				return $this->ProcessINSERT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
