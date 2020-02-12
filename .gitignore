@@ -1,0 +1,7 @@
+*.zip
+*.txt
+*.exe
+*.db
+*.php
+!support/*
+.idea
