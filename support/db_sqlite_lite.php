@@ -2,54 +2,48 @@
 
 // SQLite lightweight database interface.
 
-if (!class_exists("MDDB"))  exit();
+if (!class_exists("MDDB", false)) {
+	require_once str_replace("\\", "/", dirname(__FILE__)) . "/db.php";
+}
 
-class MDDB_sqlite_lite extends MDDB
-{
+class MDDB_sqlite_lite extends MDDB {
 	protected $dbprefix;
 
-	public function IsAvailable()
-	{
+	public function IsAvailable() {
 		return (class_exists("PDO") && in_array("sqlite", PDO::getAvailableDrivers()) ? "sqlite" : false);
 	}
 
-	public function GetDisplayName()
-	{
+	public function GetDisplayName() {
 		return MDDB::DB_Translate("SQLite (via PDO, Lite version)");
 	}
 
-	public function Connect($dsn, $username = false, $password = false, $options = array())
-	{
+	public function Connect($dsn, $username = false, $password = false, $options = array()) {
 		$this->dbprefix = "";
 
 		parent::Connect($dsn, $username, $password, $options);
 	}
 
-	public function GetInsertID($name = null)
-	{
+	public function GetInsertID($name = null) {
 		return $this->GetOne("SELECT", array("LAST_INSERT_ROWID()"));
 	}
 
-	public function QuoteIdentifier($str)
-	{
+	public function QuoteIdentifier($str) {
 		return "\"" . str_replace(array("\"", "?"), array("\"\"", ""), $str) . "\"";
 	}
 
-	protected function GenerateSQL(&$master, &$sql, &$opts, $cmd, $queryinfo, $args, $subquery)
-	{
-		switch ($cmd)
-		{
+	protected function GenerateSQL(&$master, &$sql, &$opts, $cmd, $queryinfo, $args, $subquery) {
+		switch ($cmd) {
 			case "SELECT":
 			{
 				$supported = array(
-					"DBPREFIX" => $this->dbprefix,
+					"DBPREFIX"  => $this->dbprefix,
 					"PRECOLUMN" => array("DISTINCT" => "bool", "SUBQUERIES" => true),
-					"FROM" => array("SUBQUERIES" => true),
-					"WHERE" => array("SUBQUERIES" => true),
-					"GROUP BY" => true,
-					"HAVING" => true,
-					"ORDER BY" => true,
-					"LIMIT" => ", "
+					"FROM"      => array("SUBQUERIES" => true),
+					"WHERE"     => array("SUBQUERIES" => true),
+					"GROUP BY"  => true,
+					"HAVING"    => true,
+					"ORDER BY"  => true,
+					"LIMIT"     => ", "
 				);
 
 				return $this->ProcessSELECT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
@@ -57,10 +51,15 @@ class MDDB_sqlite_lite extends MDDB
 			case "INSERT":
 			{
 				$supported = array(
-					"DBPREFIX" => $this->dbprefix,
-					"PREINTO" => array("LOW_PRIORITY" => "bool", "DELAYED" => "bool", "HIGH_PRIORITY" => "bool", "IGNORE" => "bool"),
-					"SELECT" => true,
-					"BULKINSERT" => true,
+					"DBPREFIX"        => $this->dbprefix,
+					"PREINTO"         => array(
+						"LOW_PRIORITY"  => "bool",
+						"DELAYED"       => "bool",
+						"HIGH_PRIORITY" => "bool",
+						"IGNORE"        => "bool"
+					),
+					"SELECT"          => true,
+					"BULKINSERT"      => true,
 					"BULKINSERTLIMIT" => 900,
 				);
 
@@ -71,9 +70,9 @@ class MDDB_sqlite_lite extends MDDB
 				$supported = array(
 					"DBPREFIX" => $this->dbprefix,
 					"PRETABLE" => array("LOW_PRIORITY" => "bool", "IGNORE" => "bool"),
-					"WHERE" => array("SUBQUERIES" => true),
+					"WHERE"    => array("SUBQUERIES" => true),
 					"ORDER BY" => true,
-					"LIMIT" => ", "
+					"LIMIT"    => ", "
 				);
 
 				return $this->ProcessUPDATE($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
@@ -82,10 +81,10 @@ class MDDB_sqlite_lite extends MDDB
 			{
 				$supported = array(
 					"DBPREFIX" => $this->dbprefix,
-					"PREFROM" => array("LOW_PRIORITY" => "bool", "QUICK" => "bool", "IGNORE" => "bool"),
-					"WHERE" => array("SUBQUERIES" => true),
+					"PREFROM"  => array("LOW_PRIORITY" => "bool", "QUICK" => "bool", "IGNORE" => "bool"),
+					"WHERE"    => array("SUBQUERIES" => true),
 					"ORDER BY" => true,
-					"LIMIT" => ", "
+					"LIMIT"    => ", "
 				);
 
 				return $this->ProcessDELETE($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
@@ -104,7 +103,7 @@ class MDDB_sqlite_lite extends MDDB
 			{
 				$supported = array(
 					"DBPREFIX" => $this->dbprefix,
-					"PREFROM" => array()
+					"PREFROM"  => array()
 				);
 
 				$queryinfo = array($queryinfo[0]);
@@ -113,14 +112,17 @@ class MDDB_sqlite_lite extends MDDB
 			}
 		}
 
-		return array("success" => false, "error" => MDDB::DB_Translate("Unknown query command '%s'.", $cmd), "errorcode" => "unknown_query_command");
+		return array("success"   => false,
+		             "error"     => MDDB::DB_Translate("Unknown query command '%s'.", $cmd),
+		             "errorcode" => "unknown_query_command"
+		);
 	}
 
-	private function GetDBPrefix($str)
-	{
+	private function GetDBPrefix($str) {
 		$str = preg_replace('/\s+/', "_", trim(str_replace("_", " ", $str)));
 
 		return ($str != "" ? $str . "__" : "");
 	}
 }
+
 ?>

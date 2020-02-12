@@ -2,8 +2,8 @@
 
 // PostgreSQL database interface.
 
-if (!class_exists("MDDB")) {
-	exit();
+if (!class_exists("MDDB", false)) {
+	require_once str_replace("\\", "/", dirname(__FILE__)) . "/db.php";
 }
 
 class MDDB_pgsql extends MDDB {

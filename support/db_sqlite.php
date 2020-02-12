@@ -2,8 +2,8 @@
 
 // SQLite database interface.
 
-if (!class_exists("MDDB")) {
-	exit();
+if (!class_exists("MDDB", false)) {
+	require_once str_replace("\\", "/", dirname(__FILE__)) . "/db.php";
 }
 
 class MDDB_sqlite extends MDDB {
@@ -59,15 +59,15 @@ class MDDB_sqlite extends MDDB {
 			case "INSERT":
 			{
 				$supported = array(
-					"DBPREFIX"   => $this->dbprefix,
-					"PREINTO"    => array(
+					"DBPREFIX"        => $this->dbprefix,
+					"PREINTO"         => array(
 						"LOW_PRIORITY"  => "bool",
 						"DELAYED"       => "bool",
 						"HIGH_PRIORITY" => "bool",
 						"IGNORE"        => "bool"
 					),
-					"SELECT"     => true,
-					"BULKINSERT" => true,
+					"SELECT"          => true,
+					"BULKINSERT"      => true,
 					"BULKINSERTLIMIT" => 900,
 				);
 

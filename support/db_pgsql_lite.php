@@ -2,8 +2,8 @@
 
 // PostgreSQL database interface.
 
-if (!class_exists("MDDB")) {
-	exit();
+if (!class_exists("MDDB", false)) {
+	require_once str_replace("\\", "/", dirname(__FILE__)) . "/db.php";
 }
 
 class MDDB_pgsql_lite extends MDDB {
@@ -116,9 +116,10 @@ class MDDB_pgsql_lite extends MDDB {
 			}
 		}
 
-		return array("success"   => false,
-		             "error"     => MDDB::DB_Translate("Unknown query command '%s'.", $cmd),
-		             "errorcode" => "unknown_query_command"
+		return array(
+			"success"   => false,
+			"error"     => MDDB::DB_Translate("Unknown query command '%s'.", $cmd),
+			"errorcode" => "unknown_query_command"
 		);
 	}
 

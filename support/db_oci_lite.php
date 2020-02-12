@@ -4,8 +4,8 @@
 
 // This is an early beta - use at your own risk!
 
-if (!class_exists("MDDB")) {
-	exit();
+if (!class_exists("MDDB", false)) {
+	require_once str_replace("\\", "/", dirname(__FILE__)) . "/db.php";
 }
 
 class MDDB_oci_lite extends MDDB {
