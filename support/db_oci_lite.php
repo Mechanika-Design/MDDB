@@ -26,7 +26,7 @@ class MDDB_oci_lite extends MDDB {
 	}
 
 	public function GetDisplayName() {
-		return MDDB::DB_Translate("Oracle (via PDO_OCI)");
+		return MDDB::DB_Translate("Oracle (via PDO) - Early beta");
 	}
 
 	public function Connect($dsn, $username = false, $password = false, $options = array()) {
