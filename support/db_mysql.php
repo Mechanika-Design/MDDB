@@ -279,11 +279,23 @@ class MDDB_mysql extends MDDB {
 						"SET unique_checks=0",
 						"SET foreign_key_checks=0",
 					);
+
+					$opts = array(
+						array(),
+						array(),
+						array(),
+					);
 				} else {
 					$sql = array(
 						"SET autocommit=1",
 						"SET unique_checks=1",
 						"SET foreign_key_checks=1",
+					);
+
+					$opts = array(
+						array(),
+						array(),
+						array(),
 					);
 				}
 
