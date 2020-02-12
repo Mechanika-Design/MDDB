@@ -59,7 +59,8 @@ class MDDB_sqlite_lite extends MDDB
 				$supported = array(
 					"DBPREFIX" => $this->dbprefix,
 					"PREINTO" => array("LOW_PRIORITY" => "bool", "DELAYED" => "bool", "HIGH_PRIORITY" => "bool", "IGNORE" => "bool"),
-					"SELECT" => true
+					"SELECT" => true,
+					"BULKINSERT" => true
 				);
 
 				return $this->ProcessINSERT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);

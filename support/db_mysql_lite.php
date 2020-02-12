@@ -49,12 +49,14 @@ class MDDB_mysql_lite extends MDDB {
 			case "INSERT":
 			{
 				$supported = array(
-					"PREINTO" => array("LOW_PRIORITY"  => "bool",
-					                   "DELAYED"       => "bool",
-					                   "HIGH_PRIORITY" => "bool",
-					                   "IGNORE"        => "bool"
+					"PREINTO"    => array(
+						"LOW_PRIORITY"  => "bool",
+						"DELAYED"       => "bool",
+						"HIGH_PRIORITY" => "bool",
+						"IGNORE"        => "bool"
 					),
-					"SELECT"  => true
+					"SELECT"     => true,
+					"BULKINSERT" => true
 				);
 
 				return $this->ProcessINSERT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
@@ -103,9 +105,10 @@ class MDDB_mysql_lite extends MDDB {
 			}
 		}
 
-		return array("success"   => false,
-		             "error"     => MDDB::DB_Translate("Unknown query command '%s'.", $cmd),
-		             "errorcode" => "unknown_query_command"
+		return array(
+			"success"   => false,
+			"error"     => MDDB::DB_Translate("Unknown query command '%s'.", $cmd),
+			"errorcode" => "unknown_query_command"
 		);
 	}
 }

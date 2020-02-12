@@ -57,13 +57,14 @@ class MDDB_mysql extends MDDB {
 			case "INSERT":
 			{
 				$supported = array(
-					"PREINTO" => array(
+					"PREINTO"    => array(
 						"LOW_PRIORITY"  => "bool",
 						"DELAYED"       => "bool",
 						"HIGH_PRIORITY" => "bool",
 						"IGNORE"        => "bool"
 					),
-					"SELECT"  => true
+					"SELECT"     => true,
+					"BULKINSERT" => true
 				);
 
 				return $this->ProcessINSERT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
@@ -267,6 +268,26 @@ class MDDB_mysql extends MDDB {
 						"hints" => (isset($queryinfo["EXPORT HINTS"]) ? $queryinfo["EXPORT HINTS"] : array())
 					)
 				);
+			}
+			case "BULK IMPORT MODE":
+			{
+				$master = true;
+
+				if ($queryinfo) {
+					$sql = array(
+						"SET autocommit=0",
+						"SET unique_checks=0",
+						"SET foreign_key_checks=0",
+					);
+				} else {
+					$sql = array(
+						"SET autocommit=1",
+						"SET unique_checks=1",
+						"SET foreign_key_checks=1",
+					);
+				}
+
+				return array("success" => true);
 			}
 		}
 

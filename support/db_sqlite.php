@@ -59,14 +59,15 @@ class MDDB_sqlite extends MDDB {
 			case "INSERT":
 			{
 				$supported = array(
-					"DBPREFIX" => $this->dbprefix,
-					"PREINTO"  => array(
+					"DBPREFIX"   => $this->dbprefix,
+					"PREINTO"    => array(
 						"LOW_PRIORITY"  => "bool",
 						"DELAYED"       => "bool",
 						"HIGH_PRIORITY" => "bool",
 						"IGNORE"        => "bool"
 					),
-					"SELECT"   => true
+					"SELECT"     => true,
+					"BULKINSERT" => true
 				);
 
 				return $this->ProcessINSERT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
@@ -349,6 +350,26 @@ class MDDB_sqlite extends MDDB {
 						"hints"     => (isset($queryinfo["EXPORT HINTS"]) ? $queryinfo["EXPORT HINTS"] : array())
 					)
 				);
+			}
+			case "BULK IMPORT MODE":
+			{
+				$master = true;
+
+				if ($queryinfo) {
+					$sql = array(
+						"PRAGMA synchronous=OFF",
+						"PRAGMA journal_mode=MEMORY",
+						"PRAGMA temp_store=MEMORY",
+					);
+				} else {
+					$sql = array(
+						"PRAGMA synchronous=NORMAL",
+						"PRAGMA journal_mode=DELETE",
+						"PRAGMA temp_store=DEFAULT",
+					);
+				}
+
+				return array("success" => true);
 			}
 		}
 

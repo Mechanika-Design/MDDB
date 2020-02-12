@@ -71,7 +71,7 @@ class MDDB_oci extends MDDB {
 	}
 
 	public function QuoteIdentifier($str) {
-		return str_replace(array("\"", "?"), array("\"\"", ""), $str);
+		return str_replace(array("'", "\"", "?"), "", $str);
 	}
 
 	// This function is used to get the last inserted sequence value by table name.
@@ -115,8 +115,8 @@ class MDDB_oci extends MDDB {
 					// Haven't figured out the LIMIT problem yet
 					// TODO: Figure out how to use Oracle's ROWNUM where clause functionalitty
 					// instead of the LIMIT function
-// Probably best to fake this on versions before Oracle 12c.
-// Oracle 12c and later supports this:  OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;
+					// Probably best to fake this on versions before Oracle 12c.
+					// Oracle 12c and later supports this:  OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;
 					//"LIMIT" => " OFFSET "
 				);
 
@@ -134,11 +134,23 @@ class MDDB_oci extends MDDB {
 					"PREINTO"    => array(),
 					"POSTVALUES" => array("RETURNING" => "key_identifier"),
 					"SELECT"     => true,
+					"BULKINSERT" => false
 				);
 
 				$result = $this->ProcessINSERT($master, $sql, $opts, $queryinfo, $args, $subquery, $supported);
 				if ($result["success"] && isset($queryinfo["AUTO INCREMENT"])) {
 					$result["filter_opts"] = array("mode" => "INSERT", "queryinfo" => $queryinfo);
+				}
+
+				// Handle bulk insert by rewriting the queries because, well, Oracle.
+				// http://stackoverflow.com/questions/39576/best-way-to-do-multi-row-insert-in-oracle
+				if ($result["success"] && is_array($sql)) {
+					$sql2 = "INSERT ALL";
+					foreach ($sql as $entry) {
+						$sql2 .= substr($entry, 6);
+					}
+					$sql2 .= " SELECT 1 FROM DUAL";
+					$sql  = $sql2;
 				}
 
 				return $result;
@@ -193,7 +205,7 @@ class MDDB_oci extends MDDB {
 
 			case "CREATE TABLE":
 			{
-// A random PostgreSQL reference...is this comment relevant to Oracle/OCI?
+				// A random PostgreSQL reference...is this comment relevant to Oracle/OCI?
 				// UTF-8 support has to be declared at the database (not schema or table) level.
 				// CREATE DATABASE whatever WITH ENCODING 'UTF8';
 				// See also:  http://stackoverflow.com/questions/9961795/
@@ -365,6 +377,12 @@ class MDDB_oci extends MDDB {
 						"hints" => (isset($queryinfo["EXPORT HINTS"]) ? $queryinfo["EXPORT HINTS"] : array())
 					)
 				);
+			}
+			case "BULK IMPORT MODE":
+			{
+				$master = true;
+
+				return array("success" => false, "errorcode" => "skip_sql_query");
 			}
 		}
 

@@ -648,9 +648,35 @@ class MDDB {
 					$vals[] = $val;
 				}
 			}
-			$sql .= " (" . implode(", ", $keys) . ") VALUES (" . implode(", ", $vals) . ")";
+			$sql     .= " (" . implode(", ", $keys) . ") VALUES ";
+			$origsql = $sql;
+			$sql     .= "(" . implode(", ", $vals) . ")";
 
-			if (isset($supported["POSTVALUES"])) {
+			// Handle bulk inserts.
+			$bulkinsert = (isset($supported["BULKINSERT"]) && $supported["BULKINSERT"]);
+			if (!$bulkinsert) {
+				$sql = array($sql);
+			}
+			for ($x = 3; isset($queryinfo[$x]) && isset($queryinfo[$x + 1]); $x += 2) {
+				$vals = array();
+				foreach ($queryinfo[$x] as $key => $val) {
+					$vals[] = "?";
+					$args[] = $val;
+				}
+
+				// Avoid this if possible.
+				foreach ($queryinfo[$x + 1] as $key => $val) {
+					$vals[] = $val;
+				}
+
+				if ($bulkinsert) {
+					$sql .= ", (" . implode(", ", $vals) . "}";
+				} else {
+					$sql[] = $origsql . "(" . implode(", ", $vals) . ")";
+				}
+			}
+
+			if (isset($supported["POSTVALUES"]) && !isset($queryinfo[3])) {
 				foreach ($supported["POSTVALUES"] as $key => $mode) {
 					if (isset($queryinfo[$key])) {
 						if ($mode == "key_identifier" && isset($queryinfo[$key])) {
@@ -769,9 +795,10 @@ class MDDB {
 			// Attempt to detect accidental 'WHERE = ...' clauses.
 			foreach ($queryinfo as $key => $val) {
 				if (is_int($key) && is_string($val) && strtoupper(substr($val, 0, 5)) === "WHERE") {
-					return array("success"   => false,
-					             "error"     => MDDB::DB_Translate("DELETE command appears to have a WHERE in a value instead of a key.  Query blocked to avoid an unintentional deletion of all records in the entire table.  Did you write 'WHERE something = ...' instead of 'WHERE' => 'something = ...'?"),
-					             "errorcode" => "query_blocked_where_clause"
+					return array(
+						"success"   => false,
+						"error"     => MDDB::DB_Translate("DELETE command appears to have a WHERE in a value instead of a key.  Query blocked to avoid an unintentional deletion of all records in the entire table.  Did you write 'WHERE something = ...' instead of 'WHERE' => 'something = ...'?"),
+						"errorcode" => "query_blocked_where_clause"
 					);
 				}
 			}
