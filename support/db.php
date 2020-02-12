@@ -270,6 +270,9 @@ class MDDB {
 		return false;
 	}
 
+	public function LargeResults($enable) {
+	}
+
 	public function NumQueries() {
 		return $this->numqueries;
 	}

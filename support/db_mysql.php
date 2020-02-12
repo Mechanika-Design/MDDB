@@ -34,6 +34,10 @@ class MDDB_mysql extends MDDB {
 		return ($this->GetOne("SHOW TABLES", array("LIKE" => $name)) === false ? false : true);
 	}
 
+	public function LargeResults($enable) {
+		$this->dbobj->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, (!(bool) $enable));
+	}
+
 	public function QuoteIdentifier($str) {
 		return "`" . str_replace(array("`", "?"), array("``", ""), $str) . "`";
 	}
