@@ -670,7 +670,7 @@ class MDDB {
 				}
 
 				if ($bulkinsert) {
-					$sql .= ", (" . implode(", ", $vals) . "}";
+					$sql .= ", (" . implode(", ", $vals) . ")";
 				} else {
 					$sql[] = $origsql . "(" . implode(", ", $vals) . ")";
 				}
