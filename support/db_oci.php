@@ -71,7 +71,7 @@ class MDDB_oci extends MDDB {
 	}
 
 	public function QuoteIdentifier($str) {
-		return str_replace(array("'", "\"", "?"), "", $str);
+		return preg_replace('/[^A-Za-z0-9_]/', "_", $str);
 	}
 
 	// This function is used to get the last inserted sequence value by table name.
