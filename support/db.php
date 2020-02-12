@@ -285,7 +285,10 @@ class MDDB {
 	private function InternalQuery($params) {
 		$startts = microtime(true);
 
-		$cmd       = strtoupper(array_shift($params));
+		$cmd = array_shift($params);
+		if ($cmd !== false) {
+			$cmd = strtoupper($cmd);
+		}
 		$queryinfo = array_shift($params);
 		if (count($params) == 1 && is_array($params[0])) {
 			$params = $params[0];
@@ -295,6 +298,7 @@ class MDDB {
 			$master = true;
 			$sqls   = array((string) $queryinfo);
 			$opts   = array($params);
+			$filteropts = false;
 		} else {
 			$master     = false;
 			$sqls       = "";
