@@ -194,3 +194,11 @@ Creating a database and tables (e.g. for an installer):
 ```
 
 Remember that PHP function and method calls are case-insensitive.  So it's fine if you prefer `connect()`, `query()`, `nextRow()`, `getRow()`, etc.  Just be consistent.
+
+More Information
+----------------
+
+Full documentation and examples can be found in the 'docs' directory of this repository.
+
+* [Queries](https://github.com/warrengalyen/mddb/blob/master/docs/mddb_queries.md) - Documentation for all query types including SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, etc.
+* [MDDB class](https://github.com/warrengalyen/mddb/blob/master/docs/mddb.md) - Documentation for the MDDB base class.

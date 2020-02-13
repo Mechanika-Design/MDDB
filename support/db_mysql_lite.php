@@ -209,13 +209,13 @@ class MDDB_sqlite extends MDDB {
 				}
 
 				$opts2              = $row->opts;
-				$opts2[0]           = "csdb__dropcol";
+				$opts2[0]           = "mddb__dropcol";
 				$opts2["TEMPORARY"] = true;
 
 				$cols = array_keys($opts2[1]);
 				$this->Query("CREATE TABLE", $opts2);
 				$this->Query("INSERT", array(
-					"csdb__dropcol",
+					"mddb__dropcol",
 					$cols,
 					"SELECT" => array(array($cols, "?"), $queryinfo[0])
 				));
@@ -224,9 +224,9 @@ class MDDB_sqlite extends MDDB {
 				$this->Query("INSERT", array(
 					$queryinfo[0],
 					$cols,
-					"SELECT" => array(array($cols, "?"), "csdb__dropcol")
+					"SELECT" => array(array($cols, "?"), "mddb__dropcol")
 				));
-				$this->Query("DROP TABLE", array("csdb__dropcol"));
+				$this->Query("DROP TABLE", array("mddb__dropcol"));
 
 				return array("success" => false, "errorcode" => "skip_sql_query");
 			}
